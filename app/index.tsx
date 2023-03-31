@@ -1,16 +1,14 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import { Tabs } from "expo-router";
 
-export default function App() {
+const Home = () => {
     return (
         <View style={styles.container}>
-            <Tabs.Screen options={{ title: "Home" }} />
-            <Text>Open up App.tsx to start working on your afsdfpp!</Text>
+            <Text>Home</Text>
             <StatusBar style="auto" />
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -20,3 +18,5 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
 });
+
+export default Home;
