@@ -5,7 +5,7 @@ import { Tabs } from "expo-router";
 export default function App() {
     return (
         <View style={styles.container}>
-            <Tabs.Screen options={{ title: "Home" }} />
+            <Tabs.Screen options={{ title: "Record" }} />
             <Text>Open up App.tsx to start working on your afsdfpp!</Text>
             <StatusBar style="auto" />
         </View>
