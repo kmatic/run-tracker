@@ -1,35 +1,43 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import MapView from "react-native-maps";
 
 import * as Location from "expo-location";
 
 const Record = () => {
-    const [location, setLocation] = useState<any>(null);
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    const getCurrentLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-            setErrorMsg("permission to access location was denied");
-            return;
-        }
+    const getCurrentLocation = async () => {};
 
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-    };
+    useEffect(() => {
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                setErrorMsg("permission to access location was denied");
+                return;
+            }
 
-    let text = "waiting...";
-    if (errorMsg) {
-        text = errorMsg;
-    } else if (location) {
-        text = JSON.stringify(location);
-    }
+            const location = await Location.getCurrentPositionAsync({});
+            console.log(location);
+            console.log(location.coords.latitude);
+            setLocation(location);
+        })();
+    }, []);
 
     return (
         <View style={styles.container}>
             <Text>Run</Text>
-            <Text>{text}</Text>
+            <MapView
+                style={styles.map}
+                region={{
+                    latitude: location?.coords.latitude!,
+                    longitude: location?.coords.longitude!,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                }}
+            ></MapView>
             <Pressable style={styles.record} onPress={() => getCurrentLocation()}>
                 <Text style={{ color: "white", fontSize: 18 }}>Start</Text>
             </Pressable>
@@ -53,6 +61,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 50,
+    },
+
+    map: {
+        width: "100%",
+        height: "75%",
     },
 });
 
