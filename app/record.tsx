@@ -8,6 +8,13 @@ import * as Location from "expo-location";
 const Record = () => {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [recording, setRecording] = useState<boolean>(false);
+
+    const startRecording = async () => {
+        const locationSubscription = await Location.watchPositionAsync({}, (locationUpdate) => {
+            console.log(locationUpdate);
+        });
+    };
 
     useEffect(() => {
         (async () => {
@@ -41,9 +48,25 @@ const Record = () => {
                     }}
                 />
             </MapView>
-            <Pressable style={styles.record} onPress={() => console.log("yeet")}>
-                <Text style={{ color: "white", fontSize: 18 }}>Start</Text>
-            </Pressable>
+            <View style={styles.buttonView}>
+                {recording ? (
+                    <>
+                        <Pressable style={styles.record} onPress={() => setRecording(false)}>
+                            <Text style={{ color: "white", fontSize: 18 }}>Stop</Text>
+                        </Pressable>
+                    </>
+                ) : (
+                    <Pressable
+                        style={styles.record}
+                        onPress={() => {
+                            setRecording(true);
+                            startRecording();
+                        }}
+                    >
+                        <Text style={{ color: "white", fontSize: 18 }}>Start</Text>
+                    </Pressable>
+                )}
+            </View>
             <StatusBar style="auto" />
         </View>
     );
@@ -70,6 +93,11 @@ const styles = StyleSheet.create({
     map: {
         width: "100%",
         height: "80%",
+    },
+
+    buttonView: {
+        flexDirection: "row",
+        gap: 15,
     },
 });
 
