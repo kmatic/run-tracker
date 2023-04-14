@@ -4,16 +4,48 @@ import { useEffect, useState } from "react";
 import MapView, { Marker } from "react-native-maps";
 
 import * as Location from "expo-location";
+import * as TaskManager from "expo-task-manager";
+
+type TaskType = {
+    error: TaskManager.TaskManagerError | null;
+    data: {
+        location: Location.LocationObject[];
+    };
+};
+
+const TASK_GET_LOCATION = "TASK_GET_LOCATION";
+
+const TASK_GET_LOCATION_OPTIONS = {
+    distanceInterval: 2,
+};
 
 const Record = () => {
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [recording, setRecording] = useState<boolean>(false);
 
+    TaskManager.defineTask(TASK_GET_LOCATION, ({ data, error }: any) => {
+        //fix this type !!!!!!
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (data) {
+            const [location] = data.locations;
+            console.log("received new location", location);
+
+            setLocation(location);
+        }
+    });
+
     const startRecording = async () => {
-        const locationSubscription = await Location.watchPositionAsync({}, (locationUpdate) => {
-            console.log(locationUpdate);
-        });
+        await Location.startLocationUpdatesAsync(TASK_GET_LOCATION, TASK_GET_LOCATION_OPTIONS);
+        console.log("started recording");
+    };
+
+    const stopRecording = async () => {
+        await Location.stopLocationUpdatesAsync(TASK_GET_LOCATION);
+        console.log("stopped recording");
     };
 
     useEffect(() => {
@@ -25,7 +57,7 @@ const Record = () => {
             }
 
             const location = await Location.getCurrentPositionAsync({});
-            console.log(location);
+            console.log("initial", location);
             setLocation(location);
         })();
     }, []);
@@ -51,7 +83,13 @@ const Record = () => {
             <View style={styles.buttonView}>
                 {recording ? (
                     <>
-                        <Pressable style={styles.record} onPress={() => setRecording(false)}>
+                        <Pressable
+                            style={styles.record}
+                            onPress={() => {
+                                setRecording(false);
+                                stopRecording();
+                            }}
+                        >
                             <Text style={{ color: "white", fontSize: 18 }}>Stop</Text>
                         </Pressable>
                     </>
