@@ -20,7 +20,8 @@ const TASK_GET_LOCATION_OPTIONS = {
 };
 
 const Record = () => {
-    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [currentLocation, setCurrentLocation] = useState<Location.LocationObject | null>(null);
+    const [locations, setLocations] = useState<Location.LocationObject[]>([]);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [recording, setRecording] = useState<boolean>(false);
 
@@ -34,7 +35,8 @@ const Record = () => {
             const [location] = data.locations;
             console.log("received new location", location);
 
-            setLocation(location);
+            setCurrentLocation(location);
+            setLocations([...locations, location]);
         }
     });
 
@@ -56,9 +58,9 @@ const Record = () => {
                 return;
             }
 
-            const location = await Location.getCurrentPositionAsync({});
-            console.log("initial", location);
-            setLocation(location);
+            const initialLocation = await Location.getCurrentPositionAsync({});
+            setCurrentLocation(initialLocation);
+            setLocations([initialLocation]);
         })();
     }, []);
 
@@ -67,16 +69,16 @@ const Record = () => {
             <MapView
                 style={styles.map}
                 region={{
-                    latitude: location?.coords.latitude!,
-                    longitude: location?.coords.longitude!,
+                    latitude: currentLocation?.coords.latitude!,
+                    longitude: currentLocation?.coords.longitude!,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
             >
                 <Marker
                     coordinate={{
-                        latitude: location?.coords.latitude!,
-                        longitude: location?.coords.longitude!,
+                        latitude: currentLocation?.coords.latitude!,
+                        longitude: currentLocation?.coords.longitude!,
                     }}
                 />
             </MapView>
